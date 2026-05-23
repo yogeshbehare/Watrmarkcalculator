@@ -216,7 +216,7 @@ export default function Home() {
 
           <div className="lg:sticky lg:top-5">
             {result ? (
-              <ResultCards result={result} />
+              <ResultCards result={result} artworkFile={file} />
             ) : (
               <div className="rounded-lg border border-brand-line bg-white p-6 shadow-premium sm:p-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-orange">

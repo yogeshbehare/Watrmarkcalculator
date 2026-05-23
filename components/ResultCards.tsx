@@ -1,11 +1,14 @@
-import { BadgeCheck, Layers, Palette, ReceiptText, Ruler, Sparkles } from "lucide-react";
+"use client";
+
+import { BadgeCheck, Layers, MessageCircle, Palette, ReceiptText, Ruler, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 import type { AnalyzeResponse } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/utils/format";
-import { buildWhatsAppQuoteUrl } from "@/utils/whatsapp";
+import { buildWhatsAppQuoteMessage, buildWhatsAppQuoteUrl } from "@/utils/whatsapp";
 
 type ResultCardsProps = {
   result: AnalyzeResponse;
+  artworkFile: File | null;
 };
 
 function MetricCard({
@@ -31,9 +34,36 @@ function MetricCard({
   );
 }
 
-export function ResultCards({ result }: ResultCardsProps) {
+export function ResultCards({ result, artworkFile }: ResultCardsProps) {
   const { quote, analysis } = result;
   const whatsAppUrl = buildWhatsAppQuoteUrl(quote);
+
+  async function handleShareQuote() {
+    const message = buildWhatsAppQuoteMessage(quote);
+
+    if (
+      artworkFile &&
+      typeof navigator !== "undefined" &&
+      "share" in navigator &&
+      "canShare" in navigator &&
+      navigator.canShare({ files: [artworkFile] })
+    ) {
+      try {
+        await navigator.share({
+          title: "Watrmark Print Quote",
+          text: message,
+          files: [artworkFile]
+        });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+      }
+    }
+
+    window.open(whatsAppUrl, "_blank", "noopener,noreferrer");
+  }
 
   return (
     <section className="grid gap-5">
@@ -59,13 +89,13 @@ export function ResultCards({ result }: ResultCardsProps) {
           <MetricCard
             label="Estimated coverage"
             value={`${quote.coveragePercent.toFixed(2)}%`}
-            helper={`${formatNumber(analysis.printablePixels, 0)} printable pixels analysed`}
+            helper="Estimated from the uploaded artwork"
             icon={<Palette className="h-5 w-5" />}
           />
           <MetricCard
-            label="Billing tier used"
+            label="Coverage category"
             value={`${quote.billingCoverage}%`}
-            helper="Coverage is rounded to billing slabs for practical ink costing"
+            helper="Used for quote estimation"
             icon={<Layers className="h-5 w-5" />}
           />
           <MetricCard
@@ -83,19 +113,19 @@ export function ResultCards({ result }: ResultCardsProps) {
           <MetricCard
             label="Total order value"
             value={formatCurrency(quote.totalOrderValue)}
-            helper="Calculated from coverage, print area, overhead, and margin"
+            helper="Estimated quote total"
             icon={<Sparkles className="h-5 w-5" />}
           />
         </div>
 
-        <a
-          href={whatsAppUrl}
-          target="_blank"
-          rel="noreferrer"
+        <button
+          type="button"
+          onClick={handleShareQuote}
           className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-brand-orange px-5 py-3 text-sm font-bold text-white shadow-card transition hover:bg-brand-orangeDark sm:w-auto"
         >
+          <MessageCircle className="mr-2 h-4 w-4" />
           Send Quote on WhatsApp
-        </a>
+        </button>
       </div>
     </section>
   );
