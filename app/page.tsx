@@ -221,22 +221,15 @@ export default function Home() {
             ) : (
               <div className="rounded-lg border border-brand-line bg-white p-6 shadow-premium sm:p-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-orange">
-                  Waiting for artwork
+                  Ready for quote
                 </p>
                 <h2 className="mt-3 text-2xl font-bold tracking-normal text-brand-ink">
-                  Your quote summary will appear here
+                  Your quote summary will appear here.
                 </h2>
-                <div className="mt-6 grid gap-3 text-sm text-brand-muted">
-                  <div className="rounded-lg border border-brand-line p-4">
-                    CMYK simulation estimates ink density from visible non-white pixels.
-                  </div>
-                  <div className="rounded-lg border border-brand-line p-4">
-                    Coverage is mapped to 10%, 25%, 50%, or 100% billing slabs.
-                  </div>
-                  <div className="rounded-lg border border-brand-line p-4">
-                    Final values include ink cost, overhead, margin, and minimum rate logic.
-                  </div>
-                </div>
+                <p className="mt-4 text-base leading-7 text-brand-muted">
+                  Upload the artwork, enter print size and quantity, then generate a
+                  quote for the order.
+                </p>
               </div>
             )}
           </div>
