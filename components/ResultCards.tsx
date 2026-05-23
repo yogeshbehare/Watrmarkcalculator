@@ -1,7 +1,7 @@
 "use client";
 
-import { BadgeCheck, Layers, MessageCircle, Palette, ReceiptText, Ruler, Sparkles } from "lucide-react";
-import type { ReactNode } from "react";
+import { BadgeCheck, ImageUp, Layers, MessageCircle, Palette, ReceiptText, Ruler, Sparkles } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { AnalyzeResponse } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/utils/format";
 import { buildWhatsAppQuoteMessage, buildWhatsAppQuoteUrl } from "@/utils/whatsapp";
@@ -37,10 +37,9 @@ function MetricCard({
 export function ResultCards({ result, artworkFile }: ResultCardsProps) {
   const { quote, analysis } = result;
   const whatsAppUrl = buildWhatsAppQuoteUrl(quote);
+  const [canShareArtwork, setCanShareArtwork] = useState(false);
 
-  async function handleShareQuote() {
-    const message = buildWhatsAppQuoteMessage(quote);
-
+  useEffect(() => {
     if (
       artworkFile &&
       typeof navigator !== "undefined" &&
@@ -48,21 +47,25 @@ export function ResultCards({ result, artworkFile }: ResultCardsProps) {
       "canShare" in navigator &&
       navigator.canShare({ files: [artworkFile] })
     ) {
-      try {
-        await navigator.share({
-          title: "Watrmark Print Quote",
-          text: message,
-          files: [artworkFile]
-        });
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-      }
+      setCanShareArtwork(true);
+      return;
     }
 
-    window.open(whatsAppUrl, "_blank", "noopener,noreferrer");
+    setCanShareArtwork(false);
+  }, [artworkFile]);
+
+  async function handleShareArtwork() {
+    if (!artworkFile) return;
+
+    try {
+      await navigator.share({
+        title: "Watrmark Print Quote",
+        text: buildWhatsAppQuoteMessage(quote),
+        files: [artworkFile]
+      });
+    } catch {
+      // User cancelled or the device rejected file sharing. The WhatsApp text link remains available.
+    }
   }
 
   return (
@@ -118,14 +121,28 @@ export function ResultCards({ result, artworkFile }: ResultCardsProps) {
           />
         </div>
 
-        <button
-          type="button"
-          onClick={handleShareQuote}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-brand-orange px-5 py-3 text-sm font-bold text-white shadow-card transition hover:bg-brand-orangeDark sm:w-auto"
-        >
-          <MessageCircle className="mr-2 h-4 w-4" />
-          Send Quote on WhatsApp
-        </button>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <a
+            href={whatsAppUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex w-full items-center justify-center rounded-md bg-brand-orange px-5 py-3 text-sm font-bold text-white shadow-card transition hover:bg-brand-orangeDark sm:w-auto"
+          >
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Send Quote on WhatsApp
+          </a>
+
+          {canShareArtwork ? (
+            <button
+              type="button"
+              onClick={handleShareArtwork}
+              className="inline-flex w-full items-center justify-center rounded-md border border-brand-line bg-white px-5 py-3 text-sm font-bold text-brand-ink transition hover:border-brand-orange hover:text-brand-orange sm:w-auto"
+            >
+              <ImageUp className="mr-2 h-4 w-4" />
+              Share Artwork
+            </button>
+          ) : null}
+        </div>
       </div>
     </section>
   );
