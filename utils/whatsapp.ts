@@ -11,8 +11,10 @@ export function buildWhatsAppQuoteMessage(quote: QuoteResult) {
 📐 Print Size: ${quote.width} × ${quote.height} inches
 📦 Quantity: ${quote.quantity} units
 🎨 Coverage: ${quote.coveragePercent.toFixed(2)}%
-💰 Price Per Unit: ₹${quote.pricePerUnit.toFixed(2)}
-🧾 Total: ₹${quote.totalOrderValue.toFixed(2)}${minimumLine}
+💰 Price Per Unit: ₹${quote.pricePerUnit.toFixed(2)}*
+🧾 Total: ₹${quote.totalOrderValue.toFixed(2)}*${minimumLine}
+
+*Prices are excluding government taxes and transportation.
 
 Please confirm this quote and proceed with the order.`;
 }

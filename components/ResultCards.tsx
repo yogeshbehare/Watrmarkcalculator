@@ -103,7 +103,7 @@ export function ResultCards({ result, artworkFile }: ResultCardsProps) {
           />
           <MetricCard
             label="Price per unit"
-            value={formatCurrency(quote.pricePerUnit)}
+            value={`${formatCurrency(quote.pricePerUnit)}*`}
             helper={`${formatCurrency(quote.pricePerSqInch)} per sq.inch`}
             icon={<ReceiptText className="h-5 w-5" />}
           />
@@ -115,11 +115,15 @@ export function ResultCards({ result, artworkFile }: ResultCardsProps) {
           />
           <MetricCard
             label="Total order value"
-            value={formatCurrency(quote.totalOrderValue)}
+            value={`${formatCurrency(quote.totalOrderValue)}*`}
             helper="Estimated quote total"
             icon={<Sparkles className="h-5 w-5" />}
           />
         </div>
+
+        <p className="mt-5 text-sm font-medium text-brand-muted">
+          *Prices are excluding government taxes and transportation.
+        </p>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <a
