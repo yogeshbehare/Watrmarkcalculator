@@ -126,8 +126,7 @@ export default function Home() {
                 </h1>
                 <p className="mt-3 max-w-2xl text-base leading-7 text-brand-muted">
                   Upload artwork, enter print size and quantity, and generate a
-                  practical print quote using CMYK-style pixel coverage and Watrmark
-                  pricing rules.
+                  practical print quote for your order.
                 </p>
               </div>
 
