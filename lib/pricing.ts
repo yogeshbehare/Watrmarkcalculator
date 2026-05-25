@@ -3,22 +3,22 @@ import type { BillingCoverage, QuantitySlab, QuoteInput, QuoteResult } from "@/l
 
 function getQuantitySlab(quantity: number): QuantitySlab {
   if (quantity < 1000) {
-    return { label: "1-999 pcs", setupCharge: 350, multiplier: 1.35 };
+    return { label: "1-999 pcs", multiplier: 1.35 };
   }
 
   if (quantity < 2000) {
-    return { label: "1000-1999 pcs", setupCharge: 250, multiplier: 1.2 };
+    return { label: "1000-1999 pcs", multiplier: 1.2 };
   }
 
   if (quantity < 5000) {
-    return { label: "2000-4999 pcs", setupCharge: 150, multiplier: 1 };
+    return { label: "2000-4999 pcs", multiplier: 1 };
   }
 
   if (quantity < 10000) {
-    return { label: "5000-9999 pcs", setupCharge: 100, multiplier: 0.92 };
+    return { label: "5000-9999 pcs", multiplier: 0.92 };
   }
 
-  return { label: "10000+ pcs", setupCharge: 0, multiplier: 0.85 };
+  return { label: "10000+ pcs", multiplier: 0.85 };
 }
 
 export function mapCoverageToBillingTier(coveragePercent: number): BillingCoverage {
@@ -36,7 +36,6 @@ export function calculateQuote(
   const unitArea = input.width * input.height;
   const totalArea = unitArea * input.quantity;
   const quantitySlab = getQuantitySlab(input.quantity);
-  const setupCostPerUnit = quantitySlab.setupCharge / input.quantity;
 
   const inkCostPerUnit =
     PRICING.COST_PER_ML *
@@ -45,8 +44,7 @@ export function calculateQuote(
     unitArea;
 
   const baseProductionCostPerUnit = inkCostPerUnit + PRICING.OVERHEAD_PER_UNIT;
-  const rawCostPerUnit =
-    (baseProductionCostPerUnit + setupCostPerUnit) * quantitySlab.multiplier;
+  const rawCostPerUnit = baseProductionCostPerUnit * quantitySlab.multiplier;
   const finalCostBeforeMinimum = rawCostPerUnit / (1 - PRICING.PROFIT_MARGIN);
   const minimumPricePerUnit =
     unitArea <= PRICING.MINIMUM_AREA ? PRICING.MINIMUM_PRICE_PER_UNIT : 0;
@@ -68,8 +66,6 @@ export function calculateQuote(
     minimumRateApplied,
     internal: {
       quantitySlab,
-      setupCharge: quantitySlab.setupCharge,
-      setupCostPerUnit,
       quantityMultiplier: quantitySlab.multiplier,
       inkCostPerUnit,
       overheadPerUnit: PRICING.OVERHEAD_PER_UNIT,

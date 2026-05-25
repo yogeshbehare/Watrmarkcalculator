@@ -191,11 +191,6 @@ export function ResultCards({ result, artworkFile, adminMode }: ResultCardsProps
             <AdminRow label="Average CMYK density" value={analysis.averageInkDensity.toFixed(4)} />
             <AdminRow label="Billing coverage" value={`${quote.billingCoverage}%`} />
             <AdminRow label="Quantity slab" value={quote.internal.quantitySlab.label} />
-            <AdminRow label="Setup charge" value={formatCurrency(quote.internal.setupCharge)} />
-            <AdminRow
-              label="Setup cost per unit"
-              value={formatCurrency(quote.internal.setupCostPerUnit)}
-            />
             <AdminRow label="Quantity multiplier" value={`${quote.internal.quantityMultiplier}×`} />
             <AdminRow
               label="Ink cost per unit"

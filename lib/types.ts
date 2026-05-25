@@ -8,7 +8,6 @@ export type QuoteInput = {
 
 export type QuantitySlab = {
   label: string;
-  setupCharge: number;
   multiplier: number;
 };
 
@@ -38,8 +37,6 @@ export type QuoteResult = {
   height: number;
   internal: {
     quantitySlab: QuantitySlab;
-    setupCharge: number;
-    setupCostPerUnit: number;
     quantityMultiplier: number;
     inkCostPerUnit: number;
     overheadPerUnit: number;
