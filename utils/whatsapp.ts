@@ -7,8 +7,10 @@ export function buildWhatsAppQuoteMessage(quote: QuoteResult) {
 📐 Print Size: ${quote.width} × ${quote.height} inches
 📦 Quantity: ${quote.quantity} pcs
 
-💰 Final Unit Price: ₹${quote.pricePerUnit.toFixed(2)}
-🧾 Total Order Value: ₹${quote.totalOrderValue.toFixed(2)}
+💰 Final Unit Price: ₹${quote.pricePerUnit.toFixed(2)}*
+🧾 Total Order Value: ₹${quote.totalOrderValue.toFixed(2)}*
+
+*Printing cost only. Product cost, GST, and transportation are excluded.
 
 Please confirm to proceed with production.`;
 }

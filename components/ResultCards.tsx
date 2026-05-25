@@ -131,16 +131,20 @@ export function ResultCards({ result, artworkFile, adminMode }: ResultCardsProps
           <div className="mt-7 rounded-lg bg-brand-soft p-5">
             <p className="text-sm font-semibold text-brand-muted">Final Unit Price</p>
             <p className="mt-2 text-4xl font-black tracking-normal text-brand-ink sm:text-5xl">
-              {formatCurrency(quote.pricePerUnit)}
+              {formatCurrency(quote.pricePerUnit)}*
               <span className="ml-2 text-base font-bold text-brand-muted">/ piece</span>
             </p>
             <div className="mt-5 border-t border-orange-200 pt-5">
               <p className="text-sm font-semibold text-brand-muted">Total Order Value</p>
               <p className="mt-1 text-3xl font-black text-brand-orange">
-                {formatCurrency(quote.totalOrderValue)}
+                {formatCurrency(quote.totalOrderValue)}*
               </p>
             </div>
           </div>
+
+          <p className="mt-4 text-sm font-medium text-brand-muted">
+            *Printing cost only. Product cost, GST, and transportation are excluded.
+          </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <DetailRow
