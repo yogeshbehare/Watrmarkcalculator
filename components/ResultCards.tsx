@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, ImageUp, Layers, MessageCircle, Palette, ReceiptText, Ruler, Sparkles } from "lucide-react";
+import { BadgeCheck, ImageUp, MessageCircle, Palette, ReceiptText, Ruler, Sparkles } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import type { AnalyzeResponse } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/utils/format";
@@ -94,12 +94,6 @@ export function ResultCards({ result, artworkFile }: ResultCardsProps) {
             value={`${quote.coveragePercent.toFixed(2)}%`}
             helper="Estimated from the uploaded artwork"
             icon={<Palette className="h-5 w-5" />}
-          />
-          <MetricCard
-            label="Coverage category"
-            value={`${quote.billingCoverage}%`}
-            helper="Used for quote estimation"
-            icon={<Layers className="h-5 w-5" />}
           />
           <MetricCard
             label="Price per unit"
