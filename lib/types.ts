@@ -6,8 +6,15 @@ export type QuoteInput = {
   quantity: number;
 };
 
+export type QuantitySlab = {
+  label: string;
+  setupCharge: number;
+  multiplier: number;
+};
+
 export type ArtworkAnalysis = {
   coveragePercent: number;
+  averageInkDensity: number;
   billingCoverage: BillingCoverage;
   printablePixels: number;
   analyzedPixels: number;
@@ -29,6 +36,18 @@ export type QuoteResult = {
   quantity: number;
   width: number;
   height: number;
+  internal: {
+    quantitySlab: QuantitySlab;
+    setupCharge: number;
+    setupCostPerUnit: number;
+    quantityMultiplier: number;
+    inkCostPerUnit: number;
+    overheadPerUnit: number;
+    baseProductionCostPerUnit: number;
+    rawCostPerUnit: number;
+    finalCostBeforeMinimum: number;
+    profitMargin: number;
+  };
 };
 
 export type AnalyzeResponse = {

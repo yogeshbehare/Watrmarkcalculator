@@ -1,6 +1,13 @@
 "use client";
 
-import { BadgeCheck, ImageUp, MessageCircle, Palette, ReceiptText, Ruler, Sparkles } from "lucide-react";
+import Image from "next/image";
+import {
+  ImageUp,
+  MessageCircle,
+  Package,
+  ReceiptText,
+  Ruler
+} from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import type { AnalyzeResponse } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/utils/format";
@@ -9,35 +16,59 @@ import { buildWhatsAppQuoteMessage, buildWhatsAppQuoteUrl } from "@/utils/whatsa
 type ResultCardsProps = {
   result: AnalyzeResponse;
   artworkFile: File | null;
+  adminMode: boolean;
 };
 
-function MetricCard({
+function DetailRow({
   label,
   value,
-  helper,
   icon
 }: {
   label: string;
   value: string;
-  helper: string;
   icon: ReactNode;
 }) {
   return (
-    <div className="animate-rise rounded-lg border border-brand-line bg-white p-5 shadow-card">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-soft text-brand-orange">
+    <div className="flex items-center gap-3 rounded-lg border border-brand-line bg-white p-4">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand-orange">
         {icon}
       </div>
-      <p className="text-sm font-medium text-brand-muted">{label}</p>
-      <p className="mt-1 text-2xl font-bold tracking-normal text-brand-ink">{value}</p>
-      <p className="mt-2 text-xs leading-5 text-brand-muted">{helper}</p>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-muted">
+          {label}
+        </p>
+        <p className="mt-1 text-base font-bold text-brand-ink">{value}</p>
+      </div>
     </div>
   );
 }
 
-export function ResultCards({ result, artworkFile }: ResultCardsProps) {
+function AdminRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-brand-line py-3 last:border-b-0">
+      <dt className="text-sm text-brand-muted">{label}</dt>
+      <dd className="text-right text-sm font-bold text-brand-ink">{value}</dd>
+    </div>
+  );
+}
+
+export function ResultCards({ result, artworkFile, adminMode }: ResultCardsProps) {
   const { quote, analysis } = result;
   const whatsAppUrl = buildWhatsAppQuoteUrl(quote);
   const [canShareArtwork, setCanShareArtwork] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!artworkFile) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(artworkFile);
+    setPreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [artworkFile]);
 
   useEffect(() => {
     if (
@@ -64,84 +95,134 @@ export function ResultCards({ result, artworkFile }: ResultCardsProps) {
         files: [artworkFile]
       });
     } catch {
-      // User cancelled or the device rejected file sharing. The WhatsApp text link remains available.
+      // User cancelled or the device rejected file sharing. The WhatsApp quote link remains available.
     }
   }
 
   return (
     <section className="grid gap-5">
-      <div className="rounded-lg border border-brand-line bg-white p-5 shadow-premium">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-orange">
-              Quote ready
-            </p>
-            <h2 className="mt-2 text-2xl font-bold tracking-normal text-brand-ink">
-              Estimated print order value
-            </h2>
+      <div className="animate-rise overflow-hidden rounded-lg border border-brand-line bg-white shadow-premium">
+        {previewUrl ? (
+          <div className="border-b border-brand-line bg-neutral-50 p-4">
+            <div className="relative mx-auto aspect-[4/3] max-h-72 w-full overflow-hidden rounded-lg bg-white">
+              <Image
+                src={previewUrl}
+                alt="Uploaded artwork preview"
+                fill
+                unoptimized
+                className="object-contain"
+              />
+            </div>
           </div>
-          {quote.minimumRateApplied ? (
-            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-brand-soft px-3 py-2 text-sm font-semibold text-brand-orange">
-              <BadgeCheck className="h-4 w-4" />
-              Minimum Rate Applied
-            </span>
-          ) : null}
-        </div>
+        ) : null}
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <MetricCard
-            label="Estimated coverage"
-            value={`${quote.coveragePercent.toFixed(2)}%`}
-            helper="Estimated from the uploaded artwork"
-            icon={<Palette className="h-5 w-5" />}
-          />
-          <MetricCard
-            label="Price per unit"
-            value={`${formatCurrency(quote.pricePerUnit)}*`}
-            helper={`${formatCurrency(quote.pricePerSqInch)} per sq.inch`}
-            icon={<ReceiptText className="h-5 w-5" />}
-          />
-          <MetricCard
-            label="Total print area"
-            value={`${formatNumber(quote.totalArea)} sq.in`}
-            helper={`${formatNumber(quote.unitArea)} sq.in per unit × ${quote.quantity} units`}
-            icon={<Ruler className="h-5 w-5" />}
-          />
-          <MetricCard
-            label="Total order value"
-            value={`${formatCurrency(quote.totalOrderValue)}*`}
-            helper="Estimated quote total"
-            icon={<Sparkles className="h-5 w-5" />}
-          />
-        </div>
+        <div className="p-5 sm:p-7">
+          <div>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-orange">
+                Watrmark Print Quote
+              </p>
+              <h2 className="mt-3 text-2xl font-black tracking-normal text-brand-ink sm:text-3xl">
+                Instant order estimate
+              </h2>
+            </div>
+          </div>
 
-        <p className="mt-5 text-sm font-medium text-brand-muted">
-          *Prices are excluding government taxes and transportation.
-        </p>
+          <div className="mt-7 rounded-lg bg-brand-soft p-5">
+            <p className="text-sm font-semibold text-brand-muted">Final Unit Price</p>
+            <p className="mt-2 text-4xl font-black tracking-normal text-brand-ink sm:text-5xl">
+              {formatCurrency(quote.pricePerUnit)}
+              <span className="ml-2 text-base font-bold text-brand-muted">/ piece</span>
+            </p>
+            <div className="mt-5 border-t border-orange-200 pt-5">
+              <p className="text-sm font-semibold text-brand-muted">Total Order Value</p>
+              <p className="mt-1 text-3xl font-black text-brand-orange">
+                {formatCurrency(quote.totalOrderValue)}
+              </p>
+            </div>
+          </div>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <a
-            href={whatsAppUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex w-full items-center justify-center rounded-md bg-brand-orange px-5 py-3 text-sm font-bold text-white shadow-card transition hover:bg-brand-orangeDark sm:w-auto"
-          >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Send Quote on WhatsApp
-          </a>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <DetailRow
+              label="Print Size"
+              value={`${quote.width} × ${quote.height} inches`}
+              icon={<Ruler className="h-5 w-5" />}
+            />
+            <DetailRow
+              label="Quantity"
+              value={`${formatNumber(quote.quantity, 0)} pcs`}
+              icon={<Package className="h-5 w-5" />}
+            />
+          </div>
 
-          {canShareArtwork ? (
-            <button
-              type="button"
-              onClick={handleShareArtwork}
-              className="inline-flex w-full items-center justify-center rounded-md border border-brand-line bg-white px-5 py-3 text-sm font-bold text-brand-ink transition hover:border-brand-orange hover:text-brand-orange sm:w-auto"
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={whatsAppUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-md bg-brand-orange px-5 py-3 text-sm font-bold text-white shadow-card transition hover:bg-brand-orangeDark sm:w-auto"
             >
-              <ImageUp className="mr-2 h-4 w-4" />
-              Share Artwork
-            </button>
-          ) : null}
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Send Quote on WhatsApp
+            </a>
+
+            {canShareArtwork ? (
+              <button
+                type="button"
+                onClick={handleShareArtwork}
+                className="inline-flex w-full items-center justify-center rounded-md border border-brand-line bg-white px-5 py-3 text-sm font-bold text-brand-ink transition hover:border-brand-orange hover:text-brand-orange sm:w-auto"
+              >
+                <ImageUp className="mr-2 h-4 w-4" />
+                Share Artwork
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
+
+      {adminMode ? (
+        <div className="rounded-lg border border-brand-line bg-white p-5 shadow-card">
+          <div className="mb-3 flex items-center gap-2 text-brand-orange">
+            <ReceiptText className="h-5 w-5" />
+            <h3 className="text-base font-bold text-brand-ink">Internal Admin Details</h3>
+          </div>
+          <dl>
+            <AdminRow label="Estimated coverage" value={`${quote.coveragePercent.toFixed(2)}%`} />
+            <AdminRow label="Average CMYK density" value={analysis.averageInkDensity.toFixed(4)} />
+            <AdminRow label="Billing coverage" value={`${quote.billingCoverage}%`} />
+            <AdminRow label="Quantity slab" value={quote.internal.quantitySlab.label} />
+            <AdminRow label="Setup charge" value={formatCurrency(quote.internal.setupCharge)} />
+            <AdminRow
+              label="Setup cost per unit"
+              value={formatCurrency(quote.internal.setupCostPerUnit)}
+            />
+            <AdminRow label="Quantity multiplier" value={`${quote.internal.quantityMultiplier}×`} />
+            <AdminRow
+              label="Ink cost per unit"
+              value={formatCurrency(quote.internal.inkCostPerUnit)}
+            />
+            <AdminRow
+              label="Base production cost"
+              value={formatCurrency(quote.internal.baseProductionCostPerUnit)}
+            />
+            <AdminRow
+              label="Raw cost per unit"
+              value={formatCurrency(quote.internal.rawCostPerUnit)}
+            />
+            <AdminRow label="Profit margin" value={`${quote.internal.profitMargin * 100}%`} />
+            <AdminRow
+              label="Final before minimum"
+              value={formatCurrency(quote.internal.finalCostBeforeMinimum)}
+            />
+            <AdminRow label="Price per sq.inch" value={formatCurrency(quote.pricePerSqInch)} />
+            <AdminRow label="Printable pixels" value={formatNumber(analysis.printablePixels, 0)} />
+            <AdminRow
+              label="White pixels removed"
+              value={formatNumber(analysis.ignoredWhitePixels, 0)}
+            />
+          </dl>
+        </div>
+      ) : null}
     </section>
   );
 }

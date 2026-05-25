@@ -1,7 +1,7 @@
 "use client";
 
-import { Calculator, Globe2, MessageCircle, ShieldCheck } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
+import { Calculator, Globe2, MessageCircle } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LogoMark } from "@/components/LogoMark";
 import { ResultCards } from "@/components/ResultCards";
@@ -28,6 +28,12 @@ export default function Home() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [adminMode, setAdminMode] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setAdminMode(params.get("admin") === "watrmark");
+  }, []);
 
   const numericValues = useMemo(
     () => ({
@@ -118,8 +124,7 @@ export default function Home() {
             <div className="rounded-lg border border-brand-line bg-white p-6 shadow-premium sm:p-8">
               <div className="mb-7">
                 <p className="inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-orange">
-                  <ShieldCheck className="h-4 w-4" />
-                  Server-side artwork analysis
+                  Instant commercial quote
                 </p>
                 <h1 className="mt-5 text-3xl font-black tracking-normal text-brand-ink sm:text-4xl">
                   Watrmark Print Quote Calculator
@@ -216,7 +221,7 @@ export default function Home() {
 
           <div className="lg:sticky lg:top-5">
             {result ? (
-              <ResultCards result={result} artworkFile={file} />
+              <ResultCards result={result} artworkFile={file} adminMode={adminMode} />
             ) : (
               <div className="rounded-lg border border-brand-line bg-white p-6 shadow-premium sm:p-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-orange">

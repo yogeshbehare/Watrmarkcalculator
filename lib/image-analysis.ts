@@ -90,6 +90,7 @@ export async function analyzeArtwork(buffer: Buffer): Promise<ArtworkAnalysis> {
 
   return {
     coveragePercent: normalizedCoverage,
+    averageInkDensity: Number((totalInkDensity / analyzedPixels).toFixed(4)),
     billingCoverage: mapCoverageToBillingTier(normalizedCoverage),
     printablePixels,
     analyzedPixels,
