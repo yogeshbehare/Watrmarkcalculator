@@ -1,6 +1,6 @@
 # Watrmark Print Quote Calculator
 
-A production-ready Next.js 14 web application for Watrmark Pvt Ltd. Users upload PNG/JPG artwork, enter print dimensions and quantity, and receive an estimated print quote based on server-side pixel analysis, CMYK-style ink density simulation, billing tiers, and Watrmark pricing rules.
+A production-ready Next.js 14 web application for Watrmark Pvt Ltd. Users upload PNG/JPG/PDF artwork, enter print dimensions and quantity, and receive an estimated print quote based on server-side pixel analysis, CMYK-style ink density simulation, billing tiers, and Watrmark pricing rules. PDF uploads analyse the first page only.
 
 ## Tech Stack
 
@@ -33,7 +33,7 @@ npm run build
 
 ```text
 app/
-  api/analyze/route.ts   Server-side upload validation, image analysis, and quote response
+  api/analyze/route.ts   Server-side upload validation, PDF/image analysis, and quote response
   globals.css            Tailwind base styles and app background
   layout.tsx             App metadata and root layout
   page.tsx               Main calculator UI
@@ -45,6 +45,7 @@ components/
 lib/
   constants.ts           Business details, upload limits, and pricing variables
   image-analysis.ts      Sharp.js pixel analysis and CMYK density simulation
+  pdf-render.ts          Renders page 1 of uploaded PDFs before analysis
   pricing.ts             Billing tier mapping and pricing formula
   types.ts               Shared TypeScript types
 utils/
@@ -74,7 +75,7 @@ Business details and WhatsApp number are also in `lib/constants.ts`.
 
 ## Image Analysis Logic
 
-The `/api/analyze` route keeps heavy work server-side. It validates JPG/PNG uploads up to 5MB, resizes large images to a maximum analysis dimension, removes transparent and near-white pixels, converts printable pixels to CMYK-style density, and maps the result to billing tiers:
+The `/api/analyze` route keeps heavy work server-side. It validates JPG/PNG/PDF uploads up to 5MB, renders the first PDF page when needed, resizes large images to a maximum analysis dimension, removes transparent and near-white pixels, converts printable pixels to CMYK-style density, and maps the result to billing tiers:
 
 - Up to 10% coverage: 10% billing
 - Up to 25% coverage: 25% billing
