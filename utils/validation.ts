@@ -1,4 +1,4 @@
-import { isAllowedImageType, UPLOAD_LIMITS } from "@/lib/constants";
+import { isAllowedArtworkType, UPLOAD_LIMITS } from "@/lib/constants";
 
 export type ClientValidationInput = {
   width: number;
@@ -21,11 +21,11 @@ export function validateQuoteInput(input: ClientValidationInput) {
   }
 
   if (!input.file) {
-    return "Please upload a JPG or PNG artwork file.";
+    return "Please upload a JPG, PNG, or PDF artwork file.";
   }
 
-  if (!isAllowedImageType(input.file.type)) {
-    return "Only JPG and PNG artwork files are supported.";
+  if (!isAllowedArtworkType(input.file.type)) {
+    return "Only JPG, PNG, and PDF artwork files are supported.";
   }
 
   if (input.file.size > UPLOAD_LIMITS.maxBytes) {

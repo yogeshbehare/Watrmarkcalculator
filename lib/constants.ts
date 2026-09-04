@@ -19,10 +19,14 @@ export const PRICING = {
 
 export const UPLOAD_LIMITS = {
   maxBytes: 5 * 1024 * 1024,
-  allowedTypes: ["image/png", "image/jpeg"] as const,
+  allowedTypes: ["image/png", "image/jpeg", "application/pdf"] as const,
   maxAnalysisDimension: 1200
 } as const;
 
-export function isAllowedImageType(value: string) {
+export function isAllowedArtworkType(value: string) {
   return (UPLOAD_LIMITS.allowedTypes as readonly string[]).includes(value);
+}
+
+export function isPdfType(value: string) {
+  return value === "application/pdf";
 }

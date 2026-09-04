@@ -14,6 +14,7 @@ type UploadDropzoneProps = {
 export function UploadDropzone({ file, onChange, disabled }: UploadDropzoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const isPdf = file?.type === "application/pdf";
 
   useEffect(() => {
     if (!file) {
@@ -65,19 +66,29 @@ export function UploadDropzone({ file, onChange, disabled }: UploadDropzoneProps
           disabled={disabled}
           onChange={(event) => acceptFile(event.target.files?.[0])}
           className="absolute inset-0 cursor-pointer opacity-0 disabled:cursor-not-allowed"
-          aria-label="Upload JPG or PNG artwork"
+          aria-label="Upload JPG, PNG, or PDF artwork"
         />
 
         {file && previewUrl ? (
           <div className="grid w-full gap-4 text-center">
-            <Image
-              src={previewUrl}
-              alt="Artwork preview"
-              width={640}
-              height={320}
-              unoptimized
-              className="mx-auto max-h-40 max-w-full rounded-md border border-brand-line object-contain"
-            />
+            {isPdf ? (
+              <div className="mx-auto grid h-36 w-full max-w-xs place-items-center rounded-md border border-brand-line bg-brand-soft text-brand-orange">
+                <div>
+                  <ImageUp className="mx-auto h-8 w-8" />
+                  <p className="mt-2 text-sm font-bold">PDF artwork</p>
+                  <p className="mt-1 text-xs text-brand-muted">First page will be analysed</p>
+                </div>
+              </div>
+            ) : (
+              <Image
+                src={previewUrl}
+                alt="Artwork preview"
+                width={640}
+                height={320}
+                unoptimized
+                className="mx-auto max-h-40 max-w-full rounded-md border border-brand-line object-contain"
+              />
+            )}
             <div>
               <p className="text-sm font-semibold text-brand-ink">{file.name}</p>
               <p className="mt-1 text-xs text-brand-muted">
@@ -102,9 +113,11 @@ export function UploadDropzone({ file, onChange, disabled }: UploadDropzoneProps
               <ImageUp className="h-7 w-7" />
             </div>
             <p className="mt-4 text-sm font-semibold text-brand-ink">
-              Drag and drop your PNG or JPG
+              Drag and drop your PNG, JPG, or PDF
             </p>
-            <p className="mt-1 text-xs text-brand-muted">Maximum file size: 5MB</p>
+            <p className="mt-1 text-xs text-brand-muted">
+              Maximum file size: 5MB. PDFs use page 1.
+            </p>
           </div>
         )}
       </div>

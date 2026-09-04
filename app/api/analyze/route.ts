@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { analyzeArtwork } from "@/lib/image-analysis";
 import { calculateQuote } from "@/lib/pricing";
-import { isAllowedImageType, UPLOAD_LIMITS } from "@/lib/constants";
+import { isAllowedArtworkType, isPdfType, UPLOAD_LIMITS } from "@/lib/constants";
+import { renderPdfFirstPageToPng } from "@/lib/pdf-render";
 import type { AnalyzeResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -36,14 +37,14 @@ export async function POST(request: Request) {
 
     if (!(file instanceof File)) {
       return NextResponse.json(
-        { error: "Please upload a JPG or PNG artwork file." },
+        { error: "Please upload a JPG, PNG, or PDF artwork file." },
         { status: 400 }
       );
     }
 
-    if (!isAllowedImageType(file.type)) {
+    if (!isAllowedArtworkType(file.type)) {
       return NextResponse.json(
-        { error: "Only JPG and PNG artwork files are supported." },
+        { error: "Only JPG, PNG, and PDF artwork files are supported." },
         { status: 400 }
       );
     }
@@ -56,7 +57,11 @@ export async function POST(request: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const analysis = await analyzeArtwork(Buffer.from(arrayBuffer));
+    const artworkBuffer = Buffer.from(arrayBuffer);
+    const analysisBuffer = isPdfType(file.type)
+      ? await renderPdfFirstPageToPng(artworkBuffer)
+      : artworkBuffer;
+    const analysis = await analyzeArtwork(analysisBuffer);
     const quote = calculateQuote(
       { width, height, quantity },
       analysis.coveragePercent,
