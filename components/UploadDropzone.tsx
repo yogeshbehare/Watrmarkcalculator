@@ -22,11 +22,60 @@ export function UploadDropzone({ file, onChange, disabled }: UploadDropzoneProps
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
+    if (!isPdf) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
 
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [file]);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+
+    let isMounted = true;
+    const selectedFile = file;
+
+    async function renderPdfPreview() {
+      try {
+        const pdfjs = await import("pdfjs-dist");
+        pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
+        const pdfDocument = await pdfjs.getDocument({
+          data: new Uint8Array(await selectedFile.arrayBuffer())
+        }).promise;
+        const page = await pdfDocument.getPage(1);
+        const initialViewport = page.getViewport({ scale: 1 });
+        const longestSide = Math.max(initialViewport.width, initialViewport.height);
+        const viewport = page.getViewport({ scale: Math.min(1.5, 700 / longestSide) });
+        const canvas = window.document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          throw new Error("Canvas is not available.");
+        }
+
+        canvas.width = Math.ceil(viewport.width);
+        canvas.height = Math.ceil(viewport.height);
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        await page.render({ canvas, canvasContext: context, viewport }).promise;
+        const dataUrl = canvas.toDataURL("image/png");
+
+        if (isMounted) {
+          setPreviewUrl(dataUrl);
+        }
+
+        await pdfDocument.cleanup();
+      } catch {
+        if (isMounted) {
+          setPreviewUrl(null);
+        }
+      }
+    }
+
+    renderPdfPreview();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [file, isPdf]);
 
   const acceptFile = useCallback(
     (incoming: File | undefined) => {
@@ -69,9 +118,9 @@ export function UploadDropzone({ file, onChange, disabled }: UploadDropzoneProps
           aria-label="Upload JPG, PNG, or PDF artwork"
         />
 
-        {file && previewUrl ? (
+        {file ? (
           <div className="grid w-full gap-4 text-center">
-            {isPdf ? (
+            {isPdf && !previewUrl ? (
               <div className="mx-auto grid h-36 w-full max-w-xs place-items-center rounded-md border border-brand-line bg-brand-soft text-brand-orange">
                 <div>
                   <ImageUp className="mx-auto h-8 w-8" />
@@ -79,7 +128,7 @@ export function UploadDropzone({ file, onChange, disabled }: UploadDropzoneProps
                   <p className="mt-1 text-xs text-brand-muted">First page will be analysed</p>
                 </div>
               </div>
-            ) : (
+            ) : previewUrl ? (
               <Image
                 src={previewUrl}
                 alt="Artwork preview"
@@ -88,7 +137,7 @@ export function UploadDropzone({ file, onChange, disabled }: UploadDropzoneProps
                 unoptimized
                 className="mx-auto max-h-40 max-w-full rounded-md border border-brand-line object-contain"
               />
-            )}
+            ) : null}
             <div>
               <p className="text-sm font-semibold text-brand-ink">{file.name}</p>
               <p className="mt-1 text-xs text-brand-muted">

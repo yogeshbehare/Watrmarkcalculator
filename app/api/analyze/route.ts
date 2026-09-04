@@ -58,9 +58,10 @@ export async function POST(request: Request) {
 
     const arrayBuffer = await file.arrayBuffer();
     const artworkBuffer = Buffer.from(arrayBuffer);
-    const analysisBuffer = isPdfType(file.type)
+    const pdfPreviewBuffer = isPdfType(file.type)
       ? await renderPdfFirstPageToPng(artworkBuffer)
-      : artworkBuffer;
+      : null;
+    const analysisBuffer = pdfPreviewBuffer ?? artworkBuffer;
     const analysis = await analyzeArtwork(analysisBuffer);
     const quote = calculateQuote(
       { width, height, quantity },
@@ -70,7 +71,10 @@ export async function POST(request: Request) {
 
     const response: AnalyzeResponse = {
       analysis,
-      quote
+      quote,
+      previewImageUrl: pdfPreviewBuffer
+        ? `data:image/png;base64,${pdfPreviewBuffer.toString("base64")}`
+        : undefined
     };
 
     return NextResponse.json(response);

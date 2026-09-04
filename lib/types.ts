@@ -50,4 +50,5 @@ export type QuoteResult = {
 export type AnalyzeResponse = {
   analysis: ArtworkAnalysis;
   quote: QuoteResult;
+  previewImageUrl?: string;
 };

@@ -57,9 +57,13 @@ export function ResultCards({ result, artworkFile, adminMode }: ResultCardsProps
   const whatsAppUrl = buildWhatsAppQuoteUrl(quote);
   const [canShareArtwork, setCanShareArtwork] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const isPdf = artworkFile?.type === "application/pdf";
 
   useEffect(() => {
+    if (result.previewImageUrl) {
+      setPreviewUrl(result.previewImageUrl);
+      return;
+    }
+
     if (!artworkFile) {
       setPreviewUrl(null);
       return;
@@ -69,7 +73,7 @@ export function ResultCards({ result, artworkFile, adminMode }: ResultCardsProps
     setPreviewUrl(objectUrl);
 
     return () => URL.revokeObjectURL(objectUrl);
-  }, [artworkFile]);
+  }, [artworkFile, result.previewImageUrl]);
 
   useEffect(() => {
     if (
@@ -106,25 +110,13 @@ export function ResultCards({ result, artworkFile, adminMode }: ResultCardsProps
         {previewUrl ? (
           <div className="border-b border-brand-line bg-neutral-50 p-4">
             <div className="relative mx-auto aspect-[4/3] max-h-72 w-full overflow-hidden rounded-lg bg-white">
-              {isPdf ? (
-                <div className="grid h-full place-items-center bg-brand-soft text-center text-brand-orange">
-                  <div>
-                    <ImageUp className="mx-auto h-10 w-10" />
-                    <p className="mt-3 text-base font-bold">PDF artwork uploaded</p>
-                    <p className="mt-1 text-sm font-medium text-brand-muted">
-                      Page 1 was used for this quote
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <Image
-                  src={previewUrl}
-                  alt="Uploaded artwork preview"
-                  fill
-                  unoptimized
-                  className="object-contain"
-                />
-              )}
+              <Image
+                src={previewUrl}
+                alt="Uploaded artwork preview"
+                fill
+                unoptimized
+                className="object-contain"
+              />
             </div>
           </div>
         ) : null}
