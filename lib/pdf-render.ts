@@ -1,4 +1,7 @@
 import { createCanvas } from "@napi-rs/canvas";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 type PdfPageViewport = {
   width: number;
@@ -26,6 +29,9 @@ type PdfDocument = {
 };
 
 type PdfJsModule = {
+  GlobalWorkerOptions: {
+    workerSrc: string;
+  };
   getDocument: (options: {
     data: Uint8Array;
     useWorkerFetch?: boolean;
@@ -38,6 +44,12 @@ type PdfJsModule = {
 
 export async function renderPdfFirstPageToPng(buffer: Buffer) {
   const pdfjs = (await import("pdfjs-dist/legacy/build/pdf.mjs")) as unknown as PdfJsModule;
+  const workerPath = path.join(process.cwd(), "public", "pdf.worker.mjs");
+
+  if (existsSync(workerPath)) {
+    pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
+  }
+
   const document = await pdfjs
     .getDocument({
       data: new Uint8Array(buffer),
