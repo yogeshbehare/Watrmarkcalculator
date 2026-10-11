@@ -215,7 +215,7 @@ export function ResultCards({ result, artworkFile, adminMode }: ResultCardsProps
             />
             <AdminRow label="Profit margin" value={`${quote.internal.profitMargin * 100}%`} />
             <AdminRow
-              label="Final before minimum"
+              label="Final unit price"
               value={formatCurrency(quote.internal.finalCostBeforeMinimum)}
             />
             <AdminRow label="Price per sq.inch" value={formatCurrency(quote.pricePerSqInch)} />

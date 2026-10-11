@@ -62,16 +62,16 @@ Update pricing values in `lib/constants.ts`.
 export const PRICING = {
   INK_COST_PER_LITRE: 3500,
   INK_YIELD_ML: 900,
-  COST_PER_ML: 3.8889,
+  COST_PER_ML: 5,
   INK_CONSUMPTION_100: 0.005,
-  OVERHEAD_PER_UNIT: 0.49,
-  PROFIT_MARGIN: 0.2,
-  MINIMUM_PRICE_PER_UNIT: 0.5,
-  MINIMUM_AREA: 9
+  PROFIT_MARGIN: 0.30,
+  MINIMUM_PRICE_PER_UNIT: 0.60
 };
 ```
 
 Business details and WhatsApp number are also in `lib/constants.ts`.
+
+The unit price is `(ink cost + MINIMUM_PRICE_PER_UNIT) * quantity multiplier / (1 - PROFIT_MARGIN)`. The fixed printing charge applies to every unit regardless of area; it replaces the previous overhead and minimum-area floor.
 
 ## Image Analysis Logic
 
